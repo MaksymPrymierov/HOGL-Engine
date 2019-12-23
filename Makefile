@@ -2,7 +2,7 @@ CXX=g++
 INC=-I/usr/lib/ -I/usr/include/
 SRC=src
 OBJ=obj
-LIB=-lGL -lglfw
+LIB=-lGL -lglfw -lGLEW
 
 SRCS := $(wildcard $(SRC)/*.cpp)
 INCS := $(wildcard $(INC)/*.h)
