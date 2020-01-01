@@ -1,23 +1,37 @@
-CXX=g++
-INC=-I/usr/lib/ -I/usr/include/
-SRC=src
-OBJ=obj
-LIB=-lGL -lglfw -lGLEW
+root_include_dir := include
+root_source_dir := src
+source_subdirs := . dir1 dir2
+compile_flags := -Wall -MD -pipe
+link_flags := -s -pipe
+libraries := -ldl -lGL -lglfw -lGLEW
+libraries_path := -L/usr/lib/ -L/usr/include/
 
-SRCS := $(wildcard $(SRC)/*.cpp)
-INCS := $(wildcard $(INC)/*.h)
-OBJS := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
+relative_include_dirs := $(addprefix ../../, $(root_include_dir))
+relative_source_dirs := $(addprefix ../../$(root_source_dir)/, $(source_subdirs))
+objects_dirs := $(addprefix $(root_source_dir)/, $(source_subdirs))
+objects := $(patsubst ../../%, %, $(wildcard $(addsuffix /*.c*, $(relative_source_dirs))))
+objects := $(objects:.cpp=.o)
+objects := $(objects:.c=.o)
 
-.PHONY: clean
+.PHONY: clean obj_dirs
 
-target=hogl
+all: $(program_name)
 
-$(target): $(OBJS)
-	$(CXX) $^ $(INC) $(LIB) -o $@
+$(program_name): obj_dirs $(objects)
+	g++ -o $@ $(objects) $(link_flags) $(libraries_path) $(libraries)
 
-$(OBJS): $(SRCS) $(INCS)
-	mkdir -p obj
-	$(CXX) -c $(SRCS) -o $@
+obj_dirs:
+	mkdir -p $(objects_dirs)
+
+VPATH := ../../
+
+%.o: %.cpp
+	g++ -o $@ -c $< $(compile_flags) $(build_flags) $(addprefix -I, $(relative_include_dirs))
+
+%.o: %.c
+	g++ -o $@ -c $< $(compile_flags) $(build_flags) $(addprefix -I, $(relative_include_dirs))
 
 clean:
-	$(RM) $(OBJS) $(target)
+	rm -rf bin obj
+
+include $(wildcard $(addsuffix /*.d, $(objects_dirs)))
