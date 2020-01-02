@@ -1,6 +1,6 @@
 root_include_dir := include
 root_source_dir := src
-source_subdirs := . dir1 dir2
+source_subdirs := . engine func
 compile_flags := -Wall -MD -pipe
 link_flags := -s -pipe
 libraries := -ldl -lGL -lglfw -lGLEW

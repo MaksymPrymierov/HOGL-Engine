@@ -1,20 +1,8 @@
 #include <cstdlib>
 #include <iostream>
-#include <hogl-engine.h>
-
-const GLchar* vertexShaderProgram = "#version 330 core\n"
-	"layout (location = 0) in vec3 position;\n"
-	"void main()\n"
-	"{\n"
-	"	gl_Position = vec4(position.x, position.y, position.z, 1.0f);\n"
-	"}\n";
-
-const GLchar* fragmentShaderProgram = "#version 330 core\n"
-	"layout (location = 0) out vec4 color;\n"
-	"void main()\n"
-	"{\n"
-	"	color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-	"}\n";
+#include <string>
+#include <engine/hogl-engine.h>
+#include <func/shaders.h>
 
 int main(int argc, char** argv)
 {
@@ -28,36 +16,46 @@ int main(int argc, char** argv)
 	}
 	/* Get window context */
 	GLFWwindow* window = engine.window();
-	/* Compile vertex shader */
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderProgram, nullptr);
-	glCompileShader(vertexShader);
 
-	/* Check if vertex shader has been compiled without errors */
-	int success = 0;
-	GLchar log[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	const std::string vertexShaderSrc = "#version 330 core\n"
+		"layout (location = 0) in vec3 position;\n"
+		"void main()\n"
+		"{\n"
+		"	gl_Position = vec4(position.x, position.y, position.z, 1.0f);\n"
+		"}\n";
 
-	if (!success)
+	unsigned int vertexShader = 0;
+	try
 	{
-		glGetShaderInfoLog(vertexShader, sizeof(log), nullptr, log);
-		std::cout << "Error during vertex shader compilation\n" << log << std::endl;
+		vertexShader = shaders::createShader(GL_VERTEX_SHADER, vertexShaderSrc);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+		return EXIT_FAILURE;
 	}
 
-	/* Compile fragment shader */
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderProgram, nullptr);
-	glCompileShader(fragmentShader);
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	const std::string fragmentShaderSrc = "#version 330 core\n"
+		"layout (location = 0) out vec4 color;\n"
+		"void main()\n"
+		"{\n"
+		"	color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		"}\n";
 
-	/* Check if vertex shader has been compiled without errors */
-	if (!success)
+	unsigned int fragmentShader = 0;
+	try
 	{
-		glGetShaderInfoLog(fragmentShader, sizeof(log), nullptr, log);
-		std::cout << "Error during vertex shader compilation\n" << log << std::endl;
+		fragmentShader = shaders::createShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+		return EXIT_FAILURE;
 	}
 
 	/* Link shaders in shader program */
+	int success = 0;
+	char log[512];
 	unsigned int shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
