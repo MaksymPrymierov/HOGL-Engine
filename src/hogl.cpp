@@ -7,11 +7,14 @@
 int main(int argc, char** argv)
 {
 	HOGLEngine engine;
-	int code = engine.initialize();
 
-	if (code != 1)
+	try
 	{
-		std::cout << "Failed to initialize HOGLEngine!\n Error code: " << code << std::endl;
+		engine.initialize();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what();
 		return EXIT_FAILURE;
 	}
 	/* Get window context */
@@ -31,7 +34,7 @@ int main(int argc, char** argv)
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what();
 		return EXIT_FAILURE;
 	}
 

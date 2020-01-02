@@ -8,17 +8,17 @@ HOGLEngine::~HOGLEngine()
 	glfwTerminate();
 }
 
-int HOGLEngine::initialize()
+void HOGLEngine::initialize()
 {
 	if (!glfwInit())
-		return -1;
+		throw engine_init_ex(std::string("Failed to initialize GLFW library.\n"));
 
 	_window = glfwCreateWindow(_width, _height, "HOGL", nullptr, nullptr);
 
 	if (!_window)
 	{
 		glfwTerminate();
-		return -2;
+		throw engine_init_ex(std::string("Failed to create window context.\n"));
 	}
 
 	/* Make the window's context current */
@@ -26,10 +26,8 @@ int HOGLEngine::initialize()
 
 	if (glewInit() != GLEW_OK)
 	{
-		return -3;
+		throw engine_init_ex(std::string("Failed to initialize GLEW library. glewInit() != GLEW_OK\n"));
 	}
-
-	return 1;
 }
 
 void HOGLEngine::pollEvents() const

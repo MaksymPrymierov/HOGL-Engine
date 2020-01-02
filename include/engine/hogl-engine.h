@@ -3,6 +3,23 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <exception>
+#include <string>
+
+class engine_init_ex: public std::exception
+{
+	private:
+		std::string what_message;
+
+	public:
+		engine_init_ex(const std::string message) : what_message(message)
+		{}
+
+	const char* what() const throw()
+	{
+		return what_message.c_str();
+	}
+};
 
 class HOGLEngine
 {
@@ -14,7 +31,7 @@ private:
 public:
 	HOGLEngine();
 	~HOGLEngine();
-	int initialize();
+	void initialize();
 	unsigned int windowWidth() const { return _width; }
 	unsigned int windowHeight() const { return _height; }
 	GLFWwindow* window() { return _window; }
