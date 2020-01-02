@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <iostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <hogl-engine.h>
 
 const GLchar* vertexShaderProgram = "#version 330 core\n"
 	"layout (location = 0) in vec3 position;\n"
@@ -19,29 +18,16 @@ const GLchar* fragmentShaderProgram = "#version 330 core\n"
 
 int main(int argc, char** argv)
 {
-	GLFWwindow* window;
+	HOGLEngine engine;
+	int code = engine.initialize();
 
-	/* Initialize the library */
-	if (!glfwInit())
-		return -1;
-
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "HOGL", NULL, NULL);
-	if (!window)
+	if (code != 1)
 	{
-		glfwTerminate();
-		return -1;
-	}
-
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-
-	if (glewInit() != GLEW_OK)
-	{
-		std::cerr << "Error occured during GLEW initialization\n";
+		std::cout << "Failed to initialize HOGLEngine!\n Error code: " << code << std::endl;
 		return EXIT_FAILURE;
 	}
-
+	/* Get window context */
+	GLFWwindow* window = engine.window();
 	/* Compile vertex shader */
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderProgram, nullptr);
@@ -119,7 +105,7 @@ int main(int argc, char** argv)
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Poll for and process events */
-		glfwPollEvents();
+		engine.pollEvents();
 		/* Render here */
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -129,12 +115,11 @@ int main(int argc, char** argv)
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
+		engine.swapBuffers();
 	}
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glfwTerminate();
 
 	return EXIT_SUCCESS;
 }
