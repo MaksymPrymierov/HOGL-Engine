@@ -1,23 +1,34 @@
-CXX=g++
-INC=-I/usr/lib/ -I/usr/include/
-SRC=src
-OBJ=obj
-LIB=-lGL -lglfw -lGLEW
+CXX := g++
 
-SRCS := $(wildcard $(SRC)/*.cpp)
-INCS := $(wildcard $(INC)/*.h)
-OBJS := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
+INCDIR := include
+SRCDIR := src
+OBJDIR := obj
+BINDIR := bin
+
+LDLIB := -lGL \
+         -lglfw \
+         -lGLEW \
+
+LDDIR := -L/usr/lib \
+         -L/usr/include \
+
+INCS := $(shell find $(INCDIR) -name \*.h)
+SRCS := $(shell find $(SRCDIR) -name \*.cpp)
+OBJS := $(addprefix $(OBJDIR)/,   \
+        $(patsubst %.cpp, %.o,    \
+        $(subst src/,, $(SRCS)))) \
 
 .PHONY: clean
 
-target=hogl
+TARGET := hogl
 
-$(target): $(OBJS)
-	$(CXX) $^ $(INC) $(LIB) -o $@
+$(TARGET): $(OBJS)
+	mkdir -p $(BINDIR)
+	$(CXX) $^ $(LDDIR) $(LDLIB) -o $(BINDIR)/$@
 
-$(OBJS): $(SRCS) $(INCS)
-	mkdir -p obj
-	$(CXX) -c $(SRCS) -o $@
+$(OBJS): $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	mkdir -p $(@D)
+	$(CXX) -I./$(INCDIR) -c $< -o $@
 
 clean:
-	$(RM) $(OBJS) $(target)
+	$(RM) -r $(OBJDIR) $(BINDIR)
